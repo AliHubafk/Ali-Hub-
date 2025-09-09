@@ -1,0 +1,232 @@
+local player = game.Players.LocalPlayer
+
+local gui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
+
+gui.Name = "AplyHub"
+
+gui.ResetOnSpawn = false
+
+-- === КРУГЛАЯ ИКОНКА ===
+
+local icon = Instance.new("ImageButton", gui)
+
+icon.Size = UDim2.new(0, 60, 0, 60)
+
+icon.Position = UDim2.new(0, 20, 0.5, -30)
+
+icon.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+icon.Image = "rbxassetid://1234567890" -- ← вставь сюда свой ImageId
+
+icon.AutoButtonColor = false
+
+icon.Parent = gui
+
+local iconCorner = Instance.new("UICorner", icon)
+
+iconCorner.CornerRadius = UDim.new(1, 0)
+
+local iconStroke = Instance.new("UIStroke", icon)
+
+iconStroke.Thickness = 2
+
+iconStroke.Color = Color3.fromRGB(255, 255, 255)
+
+iconStroke.Transparency = 0.3
+
+-- === МЕНЮ ===
+
+local frame = Instance.new("Frame", gui)
+
+frame.Size = UDim2.new(0, 250, 0, 240)
+
+frame.Position = UDim2.new(0, 100, 0, 100)
+
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+
+frame.Visible = false
+
+frame.Active = true
+
+frame.Draggable = true
+
+frame.Parent = gui
+
+local frameCorner = Instance.new("UICorner", frame)
+
+frameCorner.CornerRadius = UDim.new(0, 12)
+
+local frameStroke = Instance.new("UIStroke", frame)
+
+frameStroke.Thickness = 2
+
+frameStroke.Color = Color3.fromRGB(255, 255, 255)
+
+frameStroke.Transparency = 0.2
+
+local title = Instance.new("TextLabel", frame)
+
+title.Size = UDim2.new(1, 0, 0, 30)
+
+title.Text = "Aply Hub – tween v1.0"
+
+title.TextColor3 = Color3.new(1, 1, 1)
+
+title.BackgroundTransparency = 1
+
+title.Font = Enum.Font.GothamBold
+
+title.TextSize = 18
+
+title.Parent = frame
+
+-- === ФУНКЦИЯ СОЗДАНИЯ КНОПОК ===
+
+local function createButton(name, yPos)
+
+    local btn = Instance.new("TextButton", frame)
+
+    btn.Size = UDim2.new(1, -20, 0, 30)
+
+    btn.Position = UDim2.new(0, 10, 0, yPos)
+
+    btn.Text = name
+
+    btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+
+    btn.TextColor3 = Color3.new(1, 1, 1)
+
+    btn.Font = Enum.Font.Gotham
+
+    btn.TextSize = 16
+
+    btn.AutoButtonColor = false
+
+    btn.Parent = frame
+
+    local corner = Instance.new("UICorner", btn)
+
+    corner.CornerRadius = UDim.new(0, 8)
+
+    -- Физика нажатия
+
+    btn.InputBegan:Connect(function(input)
+
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            btn:TweenSize(UDim2.new(1, -24, 0, 28), "Out", "Quad", 0.05, true)
+
+        end
+
+    end)
+
+    btn.InputEnded:Connect(function(input)
+
+        if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+            btn:TweenSize(UDim2.new(1, -20, 0, 30), "Out", "Quad", 0.1, true)
+
+        end
+
+    end)
+
+    return btn
+
+end
+
+-- === КНОПКИ ===
+
+local stealBtn = createButton("Auto steal", 40)
+
+local kickBtn = createButton("Auto kick", 80)
+
+local espBtn = createButton("Esp player", 120)
+
+local antiHitBtn = createButton("Anti hit", 160)
+
+-- === ЛОГИКА КНОПОК ===
+
+stealBtn.MouseButton1Click:Connect(function()
+
+    print("Auto steal activated")
+
+    -- Здесь можно добавить реальную логику кражи
+
+end)
+
+local espOn = false
+
+local espLoop = nil
+
+espBtn.MouseButton1Click:Connect(function()
+
+    espOn = not espOn
+
+    espBtn.Text = "Esp player"
+
+    if espOn then
+
+        espLoop = game:GetService("RunService").Heartbeat:Connect(function()
+
+            for _, plr in pairs(game.Players:GetPlayers()) do
+
+                if plr ~= player and plr.Character then
+
+                    local char = plr.Character
+
+                    if not char:FindFirstChild("Highlight") then
+
+                        local hl = Instance.new("Highlight", char)
+
+                        hl.Name = "Highlight"
+
+                        hl.FillColor = Color3.fromRGB(255, 255, 255)
+
+                        hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+
+                        hl.FillTransparency = 0.8
+
+                        hl.OutlineTransparency = 0.1
+
+                    end
+
+                end
+
+            end
+
+        end)
+
+    else
+
+        if espLoop then espLoop:Disconnect() espLoop = nil end
+
+        for _, plr in pairs(game.Players:GetPlayers()) do
+
+            if plr ~= player and plr.Character then
+
+                local hl = plr.Character:FindFirstChild("Highlight")
+
+                if hl then hl:Destroy() end
+
+            end
+
+        end
+
+    end
+
+end)
+
+antiHitBtn.MouseButton1Click:Connect(function()
+
+    print("Anti hit toggled")
+
+end)
+
+-- === ОТКРЫТИЕ МЕНЮ ===
+
+icon.MouseButton1Click:Connect(function()
+
+    frame.Visible = not frame.Visible
+
+end)
+
